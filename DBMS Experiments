@@ -1,0 +1,206 @@
+3) Integrity Constraints:
+
+   a) Given the existing "students" table in your database, your task is to alter the table by adding
+      a column "department_id" After altering you need to display the table.
+
+      create table students(ID int, Name varchar(20),Marks Int,department_id varchar(20));
+      insert into students value(1,'John Doe',90,null),
+      (2,'Jane Smith',85,null),(3,'Michael Johnson',65,null),
+      (4,'Emily Davis',88,null);
+      select * from students;
+
+   b) Drop any existing Employees table to avoid conflicts.Create a new Employees table with necessary columns, including EmployeeID,
+      Name, DepartmentID, EmergencyContactName, and EmergencyContactPhone.
+
+      drop table Employee;
+      create table Employees(EmployeeID int primary key,Name varchar(225),
+      DepartmentID int,EmergencyContactName varchar(255),EmergencyContactPhone varchar(20));
+
+
+4) Practice of Inbuilt Functions:
+
+   a) Develop a SQL query to analyze the "Purchases" table within the existing database infrastructure, 
+      aiming to identify customers who have made purchases within the last 30 days.
+
+     select case when exists(select 1 from Purchases where PurchaseDate >=
+     date_sub(current_date(),interval 30 day))
+     then 'Yes'
+     else 'No'
+     end as Purchases_Last_30_Days
+
+   b) Find products with no sales records.Perform a union of names and prices from Electronics and Books categories.
+      Select electronics with rounded prices higher than any book's price.
+
+     select * from products p1 where p1.product_id not in(select s.product_id from sales s);
+     select name,price from products where category='Electronics'union
+     select name,price from products where category='Books';
+     select product_id,name,round(price,0)as rounded_price from products where
+     category='Electronics' and price>any(select price from products where category='Books');
+
+   c)  Your task should use the COUNT function to calculate the number of orders for each status.
+
+     select order_status,count(*) as total_orders from
+     orders group by order_status order by order_status;
+
+   d) Calculate the median price of products within each category to assess pricing
+      distributions and optimize pricing strategies for a retail platform.
+
+      set @ri:=-1;
+      select category,avg(price) as median_price from (
+      select @ri:=if(@pg=Market.category,@ri+1,0) as ri,
+      @pg:=Market.category as category,
+      Market.price as price from Market order by Market.price,
+      Market.category) as p
+      where p.ri in(floor(@ri/2),ceil(@ri/2))
+      group by category
+      order by category
+
+    e) Write a query to retrieve the names of actors who have appeared in movies directed by 'Christopher Nolan'.
+
+      SELECT DISTINCT Name FROM Actors WHERE ActorID IN ( SELECT ActorID FROM Cast WHERE
+      MovieID IN ( SELECT MovieID FROM Movies WHERE DirectorID = ( SELECT DirectorID FROM Directors
+      WHERE Name = 'Christopher Nolan' ) ));
+
+
+   f) Identify the product with the highest total sales amount to determine the top-selling item
+      in the sales data.
+
+      create table Product(product_id int,sale_Amount
+      varchar(20)); insert into Product values(103,3500.00);
+      select(select product_id from Product where product_id=103)as top_selling_product,
+      (select sale_amount from Product where product_id=103)as total_sales_amount from Product;
+
+
+ 5) Implementation of Nested Queries and Set operations:
+
+   a) Your task Identify products with consistent demand across different years by finding
+      common product IDs present in both the 2020 and 2021 sales tables.
+
+     select product_id from sales_2021 where product_id in(select product_id from sales_2020);
+
+  b) Create tables to store information about customers, products, and orders, with
+     necessary relationships and constraints.
+
+     create table customer_information(customer_id int,namevarchar(255),email varchar(255),phone_number
+     varchar(255),address varchar(255));
+     create table product_data(product_id int,name varchar(255),description varchar(255),price
+     decimal(20,2),category_id int);
+     create table order_details(order_id int,customer_id int,product_id int,quantity int,order_date date)
+
+  c) In this scenario, you want to identify all students who have achieved an 'A' grade in their courses.
+     Must use inner join with where clause
+
+     select Students.FirstName,Courses.CourseName from Students inner join
+     Courses On Students.CourseId=Courses.CourseID
+     where Students.Grade='A';
+
+  d) You want to retrieve a list of employees along with their corresponding department names. 
+     Must use inner join.
+
+     select Employees.FirstName,Department.DepartmentName from Employees inner join
+     Department on Employees.DeptID=Department.DeptID;
+     
+  e) Implement query to calculate the average rating received by each delivery person in the food delivery service
+
+     select DeliveryRatings.DeliveryBoyName,
+     avg(DeliveryRatings.rating)as AverageRating
+     from DeliveryRatings group by DeliveryRatings.DeliveryBoyName;
+
+  f) Design a query to identify the project(s) with the highest number of reported bugs.
+
+     select * from BugReports
+     where ReportedBugs = (select MAX(ReportedBugs) from BugReports);
+
+  g) Write an SQL query to identify the shortest and longest duration of surgeries for
+     each surgical procedure type in the healthcare organization's database.
+
+     select Procedures.ProcedureType,
+     min(Surgery.SurgeryDuration) as MinDuration,
+     max(Surgery.SurgeryDuration) as MaxDuration 
+     from Procedures join Surgery on 
+     Procedures.ProcedureID=Surgery.ProcedureID
+     group by ProcedureType;
+
+  h) Implement SQL query to determine the total number of bookings made by each customer in a travel agency's database.
+
+     SELECT c.CustomerID, c.CustomerName, COUNT(b.BookingID) AS TotalBookings FROM Customer c
+     JOIN Booking b ON c.CustomerID = b.CustomerID GROUP BY c.CustomerID, c.CustomerName;
+
+8) Application Development:
+
+  a) You are the database administrator at an IT training center that offers various specialized programs,
+     including "Web Development" and "Data Analysis." You have been tasked with maintaining the
+     center's database, which includes managing program details and tracking trainee enrollments.
+
+     CREATE TABLE Programs (ProgramID INT PRIMARY KEY,Title VARCHAR(100),Description TEXT);
+     CREATE TABLE Trainees (TraineeID INT PRIMARY KEY,FirstName VARCHAR(100),LastName VARCHAR(100),Email VARCHAR(100),
+     ProgramID INT, FOREIGN KEY (ProgramID) REFERENCES Programs(ProgramID));
+     INSERT INTO Programs VALUES(1, 'Web Development', 'Learn to build websites using HTML, CSS, and JavaScript'),
+     (2, 'Data Analysis','Learn how to analyze data using Python and SQL.');
+     INSERT INTO Trainees VALUES(1, 'Alice','Johnson', 'alice.johnson@example.com', 1),
+     (2, 'Bob', 'Brown', 'bob.brown@example.com', 2);
+     DELETE FROM Trainees WHERE TraineeID = 2;
+     SELECT t.FirstName AS "First Name", t.LastName AS "Last Name", t.Email AS "Email", p.Title AS "Program"
+     FROM Trainees t JOIN Programs p ON t.ProgramID = p.ProgramID;
+
+  b) In a dynamic corporation, the payroll processing system is the cornerstone of employee
+     compensation management. The HR department aims to streamline the calculation of overtime pay
+     for employees exceeding regular work hours. To achieve this, the payroll system should incorporate a
+     feature that automatically computes overtime pay using predefined rates and employee work logs.
+     By analyzing work hours logged beyond standard thresholds and applying the appropriate overtime
+     rates, the system ensures accurate and efficient compensation processing for overtime work.
+
+     CREATE TABLE EmployeeWorkLogs (EmployeeID INT,Date DATE,RegularHours INT,OvertimeHours INT);
+     INSERT INTO EmployeeWorkLogs VALUES
+    (101, '2024-05-01', 8, 2),(102, '2024-05-01', 8, 3),
+    (103, '2024-05-01', 8, 1),(104, '2024-05-02', 8, 2),
+    (105, '2024-05-02', 8, 3),(106, '2024-05-02', 8, 1),
+    (107, '2024-05-03', 8, 2),(108, '2024-05-03', 8, 3),
+    (109, '2024-05-03', 8, 1),(110, '2024-05-04', 8, 2);
+    SET @OvertimeRate = 20;
+    SELECT EmployeeID, CONCAT('$', OvertimeHours * @OvertimeRate) AS OvertimePay
+    FROM EmployeeWorkLogs;
+
+  c) A local blood donation center manages data related to its donors and the donations they make. The
+     center uses a database to store information about each donor, including their name, blood type, and
+     contact details, as well as records of each donation event.
+
+     CREATE TABLE Donors (DonorID INT PRIMARY KEY,FirstName VARCHAR(100),LastName VARCHAR(100),
+        BloodType VARCHAR(5),ContactNumber VARCHAR(15));
+     CREATE TABLE Donations (DonationID INT PRIMARY KEY,DonorID INT,DonationDate DATE,
+        AmountDonated INT,FOREIGN KEY (DonorID) REFERENCES Donors(DonorID));
+     INSERT INTO Donors VALUES(1, 'John','Doe', 'O+', '123-456-7890'),
+        (2, 'Jane', 'Doe', 'A+', '987-654-3210');
+     INSERT INTO Donations VALUES(1, 1, '2024-04-01', 500),
+        (2, 2, '2024-04-02', 450);
+     DELETE FROM Donations WHERE DonorID = 1;
+     DELETE FROM Donors WHERE DonorID = 1;
+     UPDATE Donors SET ContactNumber = '555-123-4567' WHERE DonorID = 2;
+     SELECT d.FirstName AS 'First Name', d.LastName AS 'Last Name',
+       d.BloodType AS 'Blood Type', don.DonationDate AS 'Donation Date',
+       don.AmountDonated AS 'Amount Donated'
+     FROM Donors d JOIN Donations don ON d.DonorID = don.DonorID;
+
+  d) You are a database manager for a city's traffic management department. Your responsibility is to
+     develop a database that records details about each traffic light's location, operational status, and
+     maintenance records. Additionally, the system should allow for reporting on lights needing
+     maintenance, traffic light functionality rates, and incident reports due to traffic light failures.
+
+     create table intersections(IntersectionID int, Location varchar(70));
+     insert into intersections values(1,'1st Ave & Main St'),(2,'2nd Ave & Main St');
+     create table TrafficLights(LightID int, IntersectionID int, Status varchar(70), LastServiceDate date);
+     insert into TrafficLights values(101,1,'Operational','2023-01-10'),
+       (102,1,'Non-Operational','2023-03-15'),(201,2,'Operational','2023-02-20');
+     create table MaintenanceLogs(LogID int, LightID int, ServiceDate date, Details varchar(70));
+     insert into MaintenanceLogs values(1,101,'2023-01-10','Routine Check'),(2,102,'2023-03-15','Replaced unit');
+     create table IncidentReports(ReportID int, LightID int, ReportDate date, IncidentDescription varchar(70));
+     insert into IncidentReports values(1,102,'2023-03-16','Failure led to minor accident');
+     select intersections.Location, TrafficLights.LightID, TrafficLights.Status 
+       from intersections join TrafficLights  on intersections.IntersectionID=TrafficLights.IntersectionID 
+       where TrafficLights.LightID=102;
+     select intersections.Location, COUNT(IncidentReports.ReportID) as NumberOfIncidents 
+       from intersections join IncidentReports on intersections.IntersectionID=IncidentReports.ReportID 
+       group by intersections.Location;
+     select TrafficLights.LightID, intersections.Location, TrafficLights.LastServiceDate, date_add(TrafficLights.LastServiceDate, INTERVAL 6 MONTH) 
+       AS NextServiceDue from intersections join TrafficLights on intersections.IntersectionID = TrafficLights.IntersectionID 
+       where intersections.Location='1st Ave & Main St';
