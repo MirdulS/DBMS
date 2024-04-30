@@ -12,7 +12,7 @@
    b) Drop any existing Employees table to avoid conflicts.Create a new Employees table with necessary columns, including EmployeeID,
       Name, DepartmentID, EmergencyContactName, and EmergencyContactPhone.
 
-      drop table Employee;
+      drop table Employees;
       create table Employees(EmployeeID int primary key,Name varchar(225),
       DepartmentID int,EmergencyContactName varchar(255),EmergencyContactPhone varchar(20));
 
